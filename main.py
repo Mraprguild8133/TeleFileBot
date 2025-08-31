@@ -7,7 +7,7 @@ Author: Mraprguild
 import asyncio
 import logging
 import os
-from bot import TelegramBot
+from bot import Bot
 
 # Configure logging
 logging.basicConfig(
@@ -25,7 +25,7 @@ async def main():
     """Main function to start the bot"""
     try:
         # Initialize and start the bot
-        bot = TelegramBot()
+        bot = Bot()
         await bot.start()
         
         logger.info("Bot started successfully by Mraprguild")
