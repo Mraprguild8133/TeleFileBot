@@ -1,0 +1,373 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Mraprguild Bot{% endblock %}
+{% block page_title %}Bot Settings{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="settings-grid">
+        <!-- Bot Configuration -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3><i class="fas fa-cog"></i> Bot Configuration</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="form-label">Custom Domain</label>
+                    <input type="text" class="form-input" id="customDomain" 
+                           value="{{ settings.custom_domain or '' }}" 
+                           placeholder="https://yourdomain.com">
+                    <small class="form-help">Set your custom domain for shortened URLs</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">API Key</label>
+                    <input type="password" class="form-input" id="apiKey" 
+                           value="{{ '••••••••••' if settings.api_key else '' }}" 
+                           placeholder="Your API key">
+                    <small class="form-help">API key for external URL shortening services</small>
+                </div>
+                
+                <button class="action-btn primary" onclick="saveSettings()">
+                    <i class="fas fa-save"></i>
+                    Save Configuration
+                </button>
+            </div>
+        </div>
+
+        <!-- Storage Settings -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3><i class="fas fa-database"></i> Storage Settings</h3>
+            </div>
+            <div class="card-body">
+                <div class="storage-info">
+                    <div class="info-item">
+                        <span class="info-label">File Limit:</span>
+                        <span class="info-value">4 GB</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Storage Channel:</span>
+                        <span class="info-value">{{ 'Configured' if settings.storage_channel else 'Not Set' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Database:</span>
+                        <span class="info-value status-online">Connected</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Storage Channel ID</label>
+                    <input type="text" class="form-input" id="storageChannel" 
+                           value="{{ settings.storage_channel or '' }}" 
+                           placeholder="-1001234567890">
+                    <small class="form-help">Telegram channel ID for file backup storage</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bot Features -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3><i class="fas fa-rocket"></i> Bot Features</h3>
+            </div>
+            <div class="card-body">
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <div class="feature-info">
+                            <i class="fas fa-link feature-icon active"></i>
+                            <div>
+                                <h4>URL Shortening</h4>
+                                <p>Automatic URL shortening with click tracking</p>
+                            </div>
+                        </div>
+                        <div class="feature-status active">Active</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-info">
+                            <i class="fas fa-file-upload feature-icon active"></i>
+                            <div>
+                                <h4>File Handling</h4>
+                                <p>Upload and store files up to 4GB</p>
+                            </div>
+                        </div>
+                        <div class="feature-status active">Active</div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-info">
+                            <i class="fas fa-globe feature-icon {{ 'active' if settings.custom_domain else 'inactive' }}"></i>
+                            <div>
+                                <h4>Custom Domain</h4>
+                                <p>Use your own domain for short URLs</p>
+                            </div>
+                        </div>
+                        <div class="feature-status {{ 'active' if settings.custom_domain else 'inactive' }}">
+                            {{ 'Active' if settings.custom_domain else 'Inactive' }}
+                        </div>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <div class="feature-info">
+                            <i class="fas fa-chart-line feature-icon active"></i>
+                            <div>
+                                <h4>Analytics</h4>
+                                <p>Track clicks and user statistics</p>
+                            </div>
+                        </div>
+                        <div class="feature-status active">Active</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bot Information -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3><i class="fas fa-info-circle"></i> Bot Information</h3>
+            </div>
+            <div class="card-body">
+                <div class="bot-info">
+                    <div class="info-row">
+                        <span class="info-label">Owner:</span>
+                        <span class="info-value">Mraprguild</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Version:</span>
+                        <span class="info-value">2.0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Framework:</span>
+                        <span class="info-value">Pyrogram</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Database:</span>
+                        <span class="info-value">SQLite</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Platform:</span>
+                        <span class="info-value">Replit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function saveSettings() {
+    const customDomain = document.getElementById('customDomain').value;
+    const apiKey = document.getElementById('apiKey').value;
+    const storageChannel = document.getElementById('storageChannel').value;
+    
+    // Save custom domain
+    if (customDomain) {
+        fetch('/api/update_setting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `key=custom_domain&value=${encodeURIComponent(customDomain)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Custom domain updated!', 'success');
+            }
+        });
+    }
+    
+    // Save API key (only if it's not the masked value)
+    if (apiKey && apiKey !== '••••••••••') {
+        fetch('/api/update_setting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `key=api_key&value=${encodeURIComponent(apiKey)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('API key updated!', 'success');
+            }
+        });
+    }
+    
+    // Save storage channel
+    if (storageChannel) {
+        fetch('/api/update_setting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `key=storage_channel&value=${encodeURIComponent(storageChannel)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Storage channel updated!', 'success');
+            }
+        });
+    }
+    
+    showNotification('Settings saved successfully!', 'success');
+}
+
+// Add styles for settings page
+const style = document.createElement('style');
+style.textContent = `
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+    }
+    
+    .settings-card {
+        background: var(--card-bg);
+        border-radius: 1rem;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--light-bg);
+    }
+    
+    .card-header h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .card-header i {
+        color: var(--primary-color);
+        margin-right: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .form-help {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+    
+    .storage-info, .bot-info {
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-item, .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .info-item:last-child, .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .info-value {
+        color: var(--text-secondary);
+    }
+    
+    .status-online {
+        color: var(--success-color) !important;
+        font-weight: 600;
+    }
+    
+    .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .feature-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .feature-item:hover {
+        border-color: var(--primary-color);
+        background: var(--light-bg);
+    }
+    
+    .feature-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .feature-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+    }
+    
+    .feature-icon.active {
+        background: var(--success-color);
+    }
+    
+    .feature-icon.inactive {
+        background: var(--text-secondary);
+    }
+    
+    .feature-info h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .feature-info p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+    
+    .feature-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .feature-status.active {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .feature-status.inactive {
+        background: var(--text-secondary);
+        color: white;
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

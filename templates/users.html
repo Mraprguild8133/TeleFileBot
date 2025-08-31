@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Users - Mraprguild Bot{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="page-header">
+        <div class="header-info">
+            <h2>👥 Bot Users</h2>
+            <p>Monitor and manage bot users</p>
+        </div>
+        <div class="header-actions">
+            <button class="action-btn primary" onclick="refreshData()">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="data-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>User ID</th>
+                    <th>Files</th>
+                    <th>URLs</th>
+                    <th>Join Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-info">
+                                <strong>{{ user[2] or 'Unknown' }}</strong>
+                                {% if user[1] %}
+                                    <small>@{{ user[1] }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <code>{{ user[0] }}</code>
+                    </td>
+                    <td>
+                        <span class="stat-badge files">{{ user[4] or 0 }}</span>
+                    </td>
+                    <td>
+                        <span class="stat-badge urls">{{ user[5] or 0 }}</span>
+                    </td>
+                    <td>{{ user[3][:10] if user[3] else 'Unknown' }}</td>
+                    <td>
+                        <span class="status-badge {{ 'banned' if user[6] else 'active' }}">
+                            {{ 'Banned' if user[6] else 'Active' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            {% if user[6] %}
+                                <button class="action-btn small success" onclick="unbanUser({{ user[0] }})">
+                                    <i class="fas fa-user-check"></i>
+                                </button>
+                            {% else %}
+                                <button class="action-btn small warning" onclick="banUser({{ user[0] }})">
+                                    <i class="fas fa-user-slash"></i>
+                                </button>
+                            {% endif %}
+                            <button class="action-btn small secondary" onclick="viewUserDetails({{ user[0] }})">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- User Details Modal -->
+<div id="userModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">User Details</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function banUser(userId) {
+    if (confirm('Are you sure you want to ban this user?')) {
+        showNotification('User management available in Telegram bot admin commands!', 'info');
+    }
+}
+
+function unbanUser(userId) {
+    if (confirm('Are you sure you want to unban this user?')) {
+        showNotification('User management available in Telegram bot admin commands!', 'info');
+    }
+}
+
+function viewUserDetails(userId) {
+    document.getElementById('modalTitle').textContent = 'User Details';
+    document.getElementById('modalContent').innerHTML = `
+        <div class="user-details">
+            <div class="detail-section">
+                <h4>Basic Information</h4>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">User ID:</span>
+                        <span class="detail-value">${userId}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status:</span>
+                        <span class="detail-value">Active</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4>Activity Summary</h4>
+                <div class="activity-stats">
+                    <div class="activity-stat">
+                        <i class="fas fa-file"></i>
+                        <span>Files Uploaded</span>
+                        <strong>Loading...</strong>
+                    </div>
+                    <div class="activity-stat">
+                        <i class="fas fa-link"></i>
+                        <span>URLs Created</span>
+                        <strong>Loading...</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('userModal').style.display = 'none';
+}
+
+function refreshData() {
+    location.reload();
+}
+
+// Add styles for users page
+const style = document.createElement('style');
+style.textContent = `
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+    
+    .user-info strong {
+        display: block;
+        color: var(--text-primary);
+    }
+    
+    .user-info small {
+        color: var(--text-secondary);
+    }
+    
+    .stat-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .stat-badge.files {
+        background: var(--secondary-color);
+    }
+    
+    .stat-badge.urls {
+        background: var(--success-color);
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: white;
+    }
+    
+    .status-badge.active {
+        background: var(--success-color);
+    }
+    
+    .status-badge.banned {
+        background: var(--danger-color);
+    }
+    
+    .action-btn.small {
+        padding: 0.5rem;
+        min-width: auto;
+    }
+    
+    .user-details {
+        max-width: 100%;
+    }
+    
+    .detail-section {
+        margin-bottom: 2rem;
+    }
+    
+    .detail-section h4 {
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 0.5rem;
+    }
+    
+    .detail-grid {
+        display: grid;
+        gap: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .detail-value {
+        color: var(--text-secondary);
+    }
+    
+    .activity-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .activity-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        text-align: center;
+    }
+    
+    .activity-stat i {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+    }
+    
+    .activity-stat span {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+    }
+    
+    .activity-stat strong {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

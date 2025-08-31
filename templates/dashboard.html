@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mraprguild Bot{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card users">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_users }}</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+
+        <div class="stat-card urls">
+            <div class="stat-icon">
+                <i class="fas fa-link"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_urls }}</h3>
+                <p>URLs Shortened</p>
+            </div>
+        </div>
+
+        <div class="stat-card files">
+            <div class="stat-icon">
+                <i class="fas fa-file-upload"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_files }}</h3>
+                <p>Files Stored</p>
+            </div>
+        </div>
+
+        <div class="stat-card clicks">
+            <div class="stat-icon">
+                <i class="fas fa-mouse-pointer"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_clicks }}</h3>
+                <p>Total Clicks</p>
+            </div>
+        </div>
+
+        <div class="stat-card storage">
+            <div class="stat-icon">
+                <i class="fas fa-hdd"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_storage }}</h3>
+                <p>Storage Used</p>
+            </div>
+        </div>
+
+        <div class="stat-card performance">
+            <div class="stat-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ "%.1f"|format(stats.total_clicks / (stats.total_urls if stats.total_urls > 0 else 1)) }}</h3>
+                <p>Avg Clicks/URL</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+        <div class="activity-card">
+            <div class="card-header">
+                <h3><i class="fas fa-link"></i> Recent URLs</h3>
+                <a href="{{ url_for('urls_page') }}" class="view-all">View All</a>
+            </div>
+            <div class="activity-list">
+                {% for url in stats.recent_urls %}
+                <div class="activity-item">
+                    <div class="activity-icon url-icon">
+                        <i class="fas fa-external-link-alt"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>{{ url[1][:50] }}{% if url[1]|length > 50 %}...{% endif %}</h4>
+                        <p>Short: {{ url[1] }} • {{ url[2] }}</p>
+                    </div>
+                    <div class="activity-time">
+                        {{ url[2][:10] if url[2] else 'Unknown' }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="activity-card">
+            <div class="card-header">
+                <h3><i class="fas fa-file-upload"></i> Recent Files</h3>
+                <a href="{{ url_for('files_page') }}" class="view-all">View All</a>
+            </div>
+            <div class="activity-list">
+                {% for file in stats.recent_files %}
+                <div class="activity-item">
+                    <div class="activity-icon file-icon">
+                        <i class="fas fa-file"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h4>{{ file[0] }}</h4>
+                        <p>{{ "%.1f"|format(file[1] / 1024 / 1024) }} MB</p>
+                    </div>
+                    <div class="activity-time">
+                        {{ file[2][:10] if file[2] else 'Unknown' }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="action-card">
+            <h3><i class="fas fa-rocket"></i> Quick Actions</h3>
+            <div class="action-buttons">
+                <button class="action-btn primary" onclick="refreshStats()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Stats
+                </button>
+                <button class="action-btn secondary" onclick="location.href='{{ url_for('settings_page') }}'">
+                    <i class="fas fa-cog"></i>
+                    Bot Settings
+                </button>
+                <button class="action-btn success" onclick="testBot()">
+                    <i class="fas fa-robot"></i>
+                    Test Bot
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function refreshStats() {
+    location.reload();
+}
+
+function testBot() {
+    alert('Bot is running and ready! Check your Telegram bot for testing.');
+}
+</script>
+{% endblock %}

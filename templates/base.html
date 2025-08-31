@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mraprguild Bot Dashboard{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="bot-logo">
+                    <i class="fas fa-robot"></i>
+                    <h2>Mraprguild Bot</h2>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li><a href="{{ url_for('dashboard') }}" class="menu-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a></li>
+                
+                <li><a href="{{ url_for('urls_page') }}" class="menu-item {% if request.endpoint == 'urls_page' %}active{% endif %}">
+                    <i class="fas fa-link"></i>
+                    <span>URLs</span>
+                </a></li>
+                
+                <li><a href="{{ url_for('files_page') }}" class="menu-item {% if request.endpoint == 'files_page' %}active{% endif %}">
+                    <i class="fas fa-file-upload"></i>
+                    <span>Files</span>
+                </a></li>
+                
+                <li><a href="{{ url_for('users_page') }}" class="menu-item {% if request.endpoint == 'users_page' %}active{% endif %}">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a></li>
+                
+                <li><a href="{{ url_for('settings_page') }}" class="menu-item {% if request.endpoint == 'settings_page' %}active{% endif %}">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a></li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="bot-status" id="bot-status">
+                    <div class="status-indicator online"></div>
+                    <span>Bot Online</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-content">
+                    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+                    <div class="header-actions">
+                        <div class="live-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-users"></i>
+                                <span id="live-users">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-link"></i>
+                                <span id="live-urls">--</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-file"></i>
+                                <span id="live-files">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
