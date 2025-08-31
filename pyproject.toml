@@ -3,7 +3,7 @@ name = "repl-nix-workspace"
 version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
    "aiohttp>=3.12.15",
     "flask>=3.1.2",
     "nltk>=3.9.1",
@@ -16,4 +16,5 @@ dependencies = []
     "sqlalchemy>=2.0.43",
     "telegram>=0.0.1",
     "textblob>=0.19.0",
+    'pyrogram>=2.0.106'
 ]
